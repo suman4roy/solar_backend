@@ -168,6 +168,8 @@ class CustomerController extends Controller
                 ImageService::delete($document_upload->bank_cancelled_cheque);
                 $document_upload->bank_cancelled_cheque = ImageService::save($request->file('bank_cancelled_cheque'));
             }
+
+            $document_upload->save();
             return response()->json([
                 'status' => 200,
                 'message' => 'Document added successfully',
