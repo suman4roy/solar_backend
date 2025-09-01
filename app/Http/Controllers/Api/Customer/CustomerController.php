@@ -13,15 +13,15 @@ use Validator;
 
 class CustomerController extends Controller
 {
-    public function addBasicInfo(Request $request)
+    public function addBasicInfo(Request $request, $id = null)
     {
          $validation = Validator::make($request->all(),[ 
             'first_name' => 'required|string|max:255',
             'middle_name' => 'string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:basic_infos,email',
-            'phone' => 'required|string|max:15|unique:basic_infos,phone',
-            'alternate_phone' => 'required|string|max:15|unique:basic_infos,phone',
+            'email' => 'required|email|unique:basic_infos,email'.($id ? ','.$id : ''),
+            'phone' => 'required|string|max:15|unique:basic_infos,phone'.($id ? ','.$id : ''),
+            'alternate_phone' => 'required|string|max:15|unique:basic_infos,phone'.($id ? ','.$id : ''),
             'occupation' => 'required|string|max:255',
             'gender' => 'required|string|max:10',
         ]);
@@ -35,16 +35,19 @@ class CustomerController extends Controller
         }
 
         try {
-            $data = BasicInfo::create([
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'alternate_phone' => $request->alternate_phone,
-                'occupation' => $request->occupation,
-                'gender' => $request->gender
-            ]);
+            $data = BasicInfo::updateOrCreate(
+                ['id' => $id],
+                [
+                    'first_name' => $request->first_name,
+                    'middle_name' => $request->middle_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'alternate_phone' => $request->alternate_phone,
+                    'occupation' => $request->occupation,
+                    'gender' => $request->gender
+                ]
+            );
             return response()->json([
                 'status' => 200,
                 'message' => 'Basic info added successfully',
@@ -60,7 +63,7 @@ class CustomerController extends Controller
     }
 
 
-     public function addBankInfo(Request $request)
+     public function addBankInfo(Request $request, $id = null)
     {
          $validation = Validator::make($request->all(),[ 
             'finance_type' => 'required|string|max:255',
@@ -80,14 +83,17 @@ class CustomerController extends Controller
         }
 
         try {
-            $data = BankInfo::create([
+            $data = BankInfo::updateOrCreate(
+                ['id' => $id],
+                [
                 'finance_type' => $request->finance_type,
                 'bank_name' => $request->bank_name,
                 'account_no' => $request->account_no,
                 'ifsc_code' => $request->ifsc_code,
                 'account_holder' => $request->account_holder,
                 'branch' => $request->branch,
-            ]);
+                ]
+            );
             return response()->json([
                 'status' => 200,
                 'message' => 'Bank info added successfully',
@@ -102,7 +108,7 @@ class CustomerController extends Controller
         }
     }
 
-    public function addDocumentUpload(Request $request)
+    public function addDocumentUpload(Request $request, $id = null)
     {
          $validation = Validator::make($request->all(),[ 
             'aadhar_card_front' => 'required|mimes:png,jpg,pdf,jpeg|max:2048',
@@ -127,8 +133,12 @@ class CustomerController extends Controller
 
         try {
 
+                if ($id) {
+                    $document_upload = DocumentUpload::findOrFail($id);
+                }else{
+                    $document_upload =  new DocumentUpload();
+                }
             
-            $document_upload =  new DocumentUpload();
             $document_upload->aadhar_card_no = $request->aadhar_card_no;
             $document_upload->pan_card_no = $request->pan_card_no;
             $document_upload->consumer_no = $request->consumer_no;
@@ -173,7 +183,7 @@ class CustomerController extends Controller
     }
 
 
-    public function addInstallationAddress(Request $request)
+    public function addInstallationAddress(Request $request, $id = null)
     {
          $validation = Validator::make($request->all(),[ 
             'village' => 'required|string|max:255',
@@ -193,14 +203,17 @@ class CustomerController extends Controller
         }
 
         try {
-            $data = InstallationAddress::create([
+            $data = InstallationAddress::updateOrCreate(
+                ['id' => $id],
+                [
                 'village' => $request->village,
                 'landmark' => $request->landmark,
                 'district' => $request->district,
                 'pincode' => $request->pincode,
                 'proposed_capacity' => $request->proposed_capacity,
                 'plot_type' => $request->plot_type,
-            ]);
+                ]
+            );
             return response()->json([
                 'status' => 200,
                 'message' => 'Installation address added successfully',
